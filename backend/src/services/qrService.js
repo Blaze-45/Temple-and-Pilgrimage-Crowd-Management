@@ -1,4 +1,4 @@
-const { DevoteeCategory } = require('../constants/enums');
+const { DevoteeCategory } = require('../constants/enums.js');
 
 async function scanQr(qrId, zoneId, client) {
   // 1. Lock QR
