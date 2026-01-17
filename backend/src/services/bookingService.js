@@ -90,6 +90,13 @@ async function createBooking(data) {
   }
 }
 
+await createNotification(
+  client,
+  devoteeId,
+  'Your booking is confirmed. Please arrive on time.'
+);
+
+
 module.exports = {
   createBooking,
 };
