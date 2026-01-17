@@ -10,5 +10,7 @@ router.post('/create', async (req, res, next) => {
     next(err);
   }
 });
-
+router.post('/create', (req, res) => {
+  console.log('REQ BODY:', req.body);
+});
 module.exports = router;

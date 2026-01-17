@@ -1,14 +1,13 @@
-const pool = require('../db/pool');
 const { v4: uuidv4 } = require('uuid');
-const qrService = require('./qrService');
+const pool = require('../db/pool');
+const { BOOKING_STATUS, QR_STATUS } = require('../constants/enums');
 
 async function createBooking(data) {
-  const { devoteeName, devoteeCategory, slotTime } = data;
+  const { slotId, devoteeId, devoteeCategory } = data;
 
-  if (!devoteeName || !slotTime || !devoteeCategory) {
-    const err = new Error('Missing booking details');
-    err.status = 400;
-    throw err;
+  // ✅ Correct validation
+  if (!slotId || !devoteeCategory) {
+    throw new Error('Missing booking details');
   }
 
   const client = await pool.connect();
@@ -16,22 +15,37 @@ async function createBooking(data) {
   try {
     await client.query('BEGIN');
 
+    // 1️⃣ Create booking
     const bookingId = uuidv4();
-
     await client.query(
-      `INSERT INTO bookings (id, devotee_name, devotee_category, slot_time, status)
-       VALUES ($1, $2, $3, $4, 'BOOKED')`,
-      [bookingId, devoteeName, devoteeCategory, slotTime]
+      `
+      INSERT INTO bookings (id, slot_id, devotee_id, devotee_category, status)
+      VALUES ($1, $2, $3, $4, $5)
+      `,
+      [
+        bookingId,
+        slotId,
+        devoteeId || null,
+        devoteeCategory,
+        BOOKING_STATUS.BOOKED,
+      ]
     );
 
-    const qr = await qrService.generateQR(client, bookingId);
+    // 2️⃣ Create QR
+    const qrId = uuidv4();
+    await client.query(
+      `
+      INSERT INTO qr_codes (id, booking_id, status, valid_from, valid_to)
+      VALUES ($1, $2, $3, NOW(), NOW() + INTERVAL '1 hour')
+      `,
+      [qrId, bookingId, QR_STATUS.ISSUED]
+    );
 
     await client.query('COMMIT');
 
     return {
       bookingId,
-      qrCode: qr.codeValue,
-      expiresAt: qr.expiresAt
+      qrId,
     };
   } catch (err) {
     await client.query('ROLLBACK');
@@ -41,4 +55,6 @@ async function createBooking(data) {
   }
 }
 
-module.exports = { createBooking };
+module.exports = {
+  createBooking,
+};
