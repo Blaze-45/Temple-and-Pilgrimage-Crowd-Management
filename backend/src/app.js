@@ -10,6 +10,8 @@ app.use('/qr', require('./routes/qr.routes'));
 app.use('/emergencies', require('./routes/emergency.routes'));
 app.use('/zones', require('./routes/zone.routes'));
 app.use('/admin', require('./routes/admin.routes'));
+app.use('/reports', require('./routes/report.routes'));
+app.use('/admin', require('./routes/admin.routes'));
 
 const bookingRoutes = require('./routes/booking.routes');
 app.use('/booking', bookingRoutes);

@@ -21,4 +21,18 @@ router.post('/run-decay', async (req, res) => {
   }
 });
 
+const { getAdminDashboardData } = require('../services/adminService');
+
+router.get('/dashboard', async (req, res) => {
+  try {
+    const data = await getAdminDashboardData();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+module.exports = router;
+
+
 module.exports = router;

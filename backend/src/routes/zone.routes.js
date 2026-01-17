@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const pool = require('../db/pool');
 const { calculateZoneStatus } = require('../services/zoneStatusService');
+const { calculateHeatmapLevel } = require('../services/heatmapService');
 
 /**
  * Zone statistics (ENTRY / EXIT analytics)
@@ -27,6 +28,32 @@ router.get('/stats', async (req, res) => {
 });
 
 /**
+ * Zone heatmap data
+ */
+router.get('/heatmap', async (req, res) => {
+  try {
+    const result = await pool.query(`SELECT * FROM zones`);
+
+    const heatmap = result.rows.map(zone => {
+      const heat = calculateHeatmapLevel(zone);
+
+      return {
+        zoneId: zone.id,
+        zoneName: zone.name,
+        currentCapacity: zone.current_capacity,
+        maxCapacity: zone.max_capacity,
+        heatLevel: heat.level,
+        occupancyPercent: Math.round(heat.percentage)
+      };
+    });
+
+    res.json(heatmap);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * List all zones
  */
 router.get('/', async (req, res) => {
@@ -45,7 +72,7 @@ router.get('/', async (req, res) => {
 });
 
 /**
- * Single zone by ID
+ * Single zone by ID (KEEP THIS LAST)
  */
 router.get('/:id', async (req, res) => {
   const result = await pool.query(
