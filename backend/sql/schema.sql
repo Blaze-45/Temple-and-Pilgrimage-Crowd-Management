@@ -112,6 +112,15 @@ CREATE TABLE emergencies (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+--medical resources
+CREATE TABLE medical_resources (
+  id UUID PRIMARY KEY,
+  name TEXT NOT NULL,
+  type TEXT NOT NULL,      -- AMBULANCE / FIRST_AID / MEDICAL_BOOTH
+  status TEXT NOT NULL,    -- AVAILABLE / BUSY / OFFLINE
+  zone_id UUID REFERENCES zones(id)
+);
+
 -- =========================
 -- INDEXES
 -- =========================
