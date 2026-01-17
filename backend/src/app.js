@@ -9,6 +9,9 @@ app.use('/zones', require('./routes/zone.routes'));
 app.use('/admin', require('./routes/admin.routes'));
 app.use('/exit', require('./routes/exit.routes'));
 
+const bookingRoutes = require('./routes/booking.routes');
+app.use('/booking', bookingRoutes);
+
 const errorHandler = require('./middleware/errorHandler');
 app.use(errorHandler);
 

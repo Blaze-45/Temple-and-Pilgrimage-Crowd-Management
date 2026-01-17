@@ -1,5 +1,28 @@
 const { DevoteeCategory } = require('../constants/enums.js');
 
+const { v4: uuidv4 } = require('uuid');
+
+async function generateQR(client, bookingId) {
+  const qrId = uuidv4();
+  const codeValue = uuidv4(); // QR payload
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  await client.query(
+    `INSERT INTO qr_codes (id, booking_id, code_value, expires_at, status)
+     VALUES ($1, $2, $3, $4, 'UNUSED')`,
+    [qrId, bookingId, codeValue, expiresAt]
+  );
+
+  return {
+    qrId,
+    codeValue,
+    expiresAt
+  };
+}
+
+module.exports.generateQR = generateQR;
+
+
 async function scanQr(qrId, zoneId, client) {
   // 1. Lock QR
   const qrRes = await client.query(
