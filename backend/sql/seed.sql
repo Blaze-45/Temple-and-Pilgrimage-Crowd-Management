@@ -28,7 +28,15 @@ INSERT INTO devotees VALUES
 -- BOOKINGS
 -- =========================
 
-INSERT INTO bookings VALUES (
+INSERT INTO bookings (
+  id,
+  slot_id,
+  devotee_id,
+  devotee_category,
+  status,
+  created_at
+)
+VALUES (
   gen_random_uuid(),
   (SELECT id FROM slots LIMIT 1),
   (SELECT id FROM devotees LIMIT 1),
@@ -41,7 +49,16 @@ INSERT INTO bookings VALUES (
 -- QR CODES
 -- =========================
 
-INSERT INTO qr_codes VALUES (
+INSERT INTO qr_codes (
+  id,
+  booking_id,
+  devotee_id,
+  valid_from,
+  valid_to,
+  status,
+  last_scanned_zone
+)
+VALUES (
   gen_random_uuid(),
   (SELECT id FROM bookings LIMIT 1),
   (SELECT id FROM devotees LIMIT 1),
@@ -50,18 +67,3 @@ INSERT INTO qr_codes VALUES (
   'ISSUED',
   NULL
 );
-
--- =========================
--- FINAL SANITY CHECK
--- =========================
-
-SELECT
-  b.id AS booking_id,
-  d.name AS devotee,
-  s.slot_start,
-  q.status AS qr_status
-FROM bookings b
-JOIN slots s ON b.slot_id = s.id
-JOIN devotees d ON b.devotee_id = d.id
-JOIN qr_codes q ON q.booking_id = b.id;
-
