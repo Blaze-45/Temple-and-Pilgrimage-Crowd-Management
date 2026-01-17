@@ -9,4 +9,7 @@ app.use('/zones', require('./routes/zone.routes'));
 app.use('/admin', require('./routes/admin.routes'));
 app.use('/exit', require('./routes/exit.routes'));
 
+const errorHandler = require('./middleware/errorHandler');
+app.use(errorHandler);
+
 module.exports = app;
