@@ -25,8 +25,6 @@ module.exports = { runTimeDecay };
 
 const { exitZone } = require('./exitService');
 
-const DARSHAN_DURATION_MINUTES = 20;
-
 async function runDecay(client) {
   // Find QRs that entered too long ago and never exited
   const res = await client.query(`
