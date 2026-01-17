@@ -1,3 +1,7 @@
+-- =========================
+-- ENUM TYPES
+-- =========================
+
 CREATE TYPE devotee_category AS ENUM (
   'NORMAL',
   'VIP',
@@ -8,8 +12,8 @@ CREATE TYPE devotee_category AS ENUM (
 CREATE TYPE qr_status AS ENUM (
   'ISSUED',
   'SCANNED',
-  'EXPIRED',
-  'INVALIDATED'
+  'EXITED',
+  'EXPIRED'
 );
 
 CREATE TYPE emergency_status AS ENUM (
@@ -18,7 +22,11 @@ CREATE TYPE emergency_status AS ENUM (
   'IN_PROGRESS',
   'RESOLVED'
 );
-DROP TABLE if EXISTS zones;
+
+-- =========================
+-- CORE TABLES
+-- =========================
+
 CREATE TABLE zones (
   id UUID PRIMARY KEY,
   name TEXT NOT NULL,
@@ -28,33 +36,73 @@ CREATE TABLE zones (
   reserved_priority_capacity INT NOT NULL
 );
 
-DROP TABLE IF EXISTS devotees;
 CREATE TABLE devotees (
   id UUID PRIMARY KEY,
   name TEXT,
   category devotee_category NOT NULL
 );
 
-DROP TABLE IF EXISTS bookings;
-CREATE TABLE bookings (
+-- =========================
+-- SLOTS (TIME WINDOWS)
+-- =========================
+
+CREATE TABLE slots (
   id UUID PRIMARY KEY,
   slot_start TIMESTAMP NOT NULL,
   slot_end TIMESTAMP NOT NULL,
   status TEXT NOT NULL
 );
 
-DROP TABLE IF EXISTS qr_codes;
-CREATE TABLE qr_codes (
-  id UUID PRIMARY KEY,
-  booking_id UUID REFERENCES bookings(id),
-  devotee_id UUID REFERENCES devotees(id),
-  valid_from TIMESTAMP NOT NULL,
-  valid_to TIMESTAMP NOT NULL,
-  status qr_status NOT NULL,
-  last_scanned_zone UUID REFERENCES zones(id)
+-- =========================
+-- BOOKINGS (WHO BOOKED WHICH SLOT)
+-- =========================
+
+CREATE TABLE bookings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  slot_id UUID NOT NULL
+    REFERENCES slots(id)
+    ON DELETE CASCADE,
+
+  devotee_id UUID
+    REFERENCES devotees(id)
+    ON DELETE SET NULL,
+
+  devotee_category devotee_category NOT NULL,
+
+  status TEXT NOT NULL
+    CHECK (status IN ('BOOKED', 'CANCELLED')),
+
+  created_at TIMESTAMP DEFAULT NOW()
 );
 
-DROP TABLE IF EXISTS zone_events;
+-- =========================
+-- QR CODES
+-- =========================
+
+CREATE TABLE qr_codes (
+  id UUID PRIMARY KEY,
+
+  booking_id UUID NOT NULL
+    REFERENCES bookings(id)
+    ON DELETE CASCADE,
+
+  devotee_id UUID
+    REFERENCES devotees(id),
+
+  valid_from TIMESTAMP NOT NULL,
+  valid_to TIMESTAMP NOT NULL,
+
+  status qr_status NOT NULL,
+
+  last_scanned_zone UUID
+    REFERENCES zones(id)
+);
+
+-- =========================
+-- ZONE EVENTS (AUDIT LOG)
+-- =========================
+
 CREATE TABLE zone_events (
   id UUID PRIMARY KEY,
   zone_id UUID REFERENCES zones(id),
@@ -63,7 +111,10 @@ CREATE TABLE zone_events (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-DROP TABLE IF EXISTS emergencies;
+-- =========================
+-- EMERGENCIES
+-- =========================
+
 CREATE TABLE emergencies (
   id UUID PRIMARY KEY,
   zone_id UUID REFERENCES zones(id),

@@ -96,4 +96,7 @@ async function scanQr(qrId, zoneId, client) {
   );
 }
 
+
+console.log(uuidv4());
+
 module.exports = { scanQr };
