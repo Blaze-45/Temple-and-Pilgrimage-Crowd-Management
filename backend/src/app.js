@@ -18,4 +18,6 @@ app.use('/booking', bookingRoutes);
 const errorHandler = require('./middleware/errorHandler');
 app.use(errorHandler);
 
+const pool = require('./db/pool');
+
 module.exports = app;
