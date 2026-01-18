@@ -28,3 +28,20 @@ router.get('/daily', async (req, res) => {
 });
 
 module.exports = router;
+/**
+ * GET /reports/landing
+ * Summary stats for landing page
+ */
+router.get('/landing', async (req, res) => {
+  try {
+    // TEMP values (can be replaced with real logic later)
+    res.json({
+      queueLength: 1180,
+      slotsAvailable: 295,
+      activeIncidents: 1,
+      avgWaitTime: 22
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch landing stats' });
+  }
+});
