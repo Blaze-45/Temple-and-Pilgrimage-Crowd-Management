@@ -11,3 +11,22 @@ async function createNotification(client, devoteeId, message) {
 }
 
 module.exports = { createNotification };
+async function getNotificationsByDevotee(client, devoteeId) {
+  const { rows } = await client.query(
+    `
+    SELECT id, message, created_at
+    FROM notifications
+    WHERE devotee_id = $1
+    ORDER BY created_at DESC
+    LIMIT 20
+    `,
+    [devoteeId]
+  );
+
+  return rows;
+}
+
+module.exports = {
+  createNotification,
+  getNotificationsByDevotee,
+};

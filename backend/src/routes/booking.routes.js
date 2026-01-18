@@ -1,16 +1,20 @@
-const express = require('express');
-const router = express.Router();
-const bookingService = require('../services/bookingService');
+const router = require("express").Router();
 
-router.post('/create', async (req, res, next) => {
-  try {
-    const booking = await bookingService.createBooking(req.body);
-    res.status(201).json(booking);
-  } catch (err) {
-    next(err);
-  }
+/**
+ * POST /api/booking/create
+ */
+router.post("/create", async (req, res) => {
+  const { slotId, priority } = req.body;
+
+  console.log("Booking request:", req.body);
+
+  // TEMP response (demo-safe)
+  res.json({
+    bookingId: "TMP-" + Date.now(),
+    slotTime: "10:00 AM",
+    entryGate: "Gate 2A",
+    priority: priority || null
+  });
 });
-router.post('/create', (req, res) => {
-  console.log('REQ BODY:', req.body);
-});
+
 module.exports = router;

@@ -4,6 +4,8 @@ const app = express();
 // middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/api/reports", require("./routes/report.routes"));
+app.use("/api/notifications", require("./routes/notification.routes"));
 
 // routes
 app.use('/qr', require('./routes/qr.routes'));
