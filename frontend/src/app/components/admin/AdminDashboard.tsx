@@ -330,3 +330,11 @@ function StatCard({ icon: Icon, label, value, change, changeType, color }: any) 
     </motion.div>
   );
 }
+<Button
+  onClick={() => {
+    localStorage.removeItem("user");
+    onBack();
+  }}
+>
+  Logout
+</Button>
